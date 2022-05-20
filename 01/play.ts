@@ -421,6 +421,7 @@ class RefResolver extends AstVisitor{
     private resolveFunctionCall(prog: Prog, functionCall: FunctionCall){
         let functionDecl = this.findFunctionDecl(prog,functionCall.name);
         if (functionDecl != null){
+            // 在函数 call 的地方挂上函数的 definition
             functionCall.definition = functionDecl;
         }
         else{

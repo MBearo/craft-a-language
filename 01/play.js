@@ -94,6 +94,14 @@ class AstNode {
  * 其子类包括函数声明和函数调用
  */
 class Statement extends AstNode {
+    static isStatementNode(node) {
+        if (!node) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
 }
 /**
  * 程序节点，也是AST的根节点
@@ -130,6 +138,17 @@ class FunctionBody extends AstNode {
         super();
         this.stmts = stmts;
     }
+    static isFunctionBodyNode(node) {
+        if (!node) {
+            return false;
+        }
+        if (Object.getPrototypeOf(node) == FunctionBody.prototype) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
     dump(prefix) {
         console.log(prefix + "FunctionBody");
         this.stmts.forEach(x => x.dump(prefix + "\t"));
@@ -144,6 +163,17 @@ class FunctionCall extends Statement {
         this.definition = null; //指向函数的声明
         this.name = name;
         this.parameters = parameters;
+    }
+    static isFunctionCallNode(node) {
+        if (!node) {
+            return false;
+        }
+        if (Object.getPrototypeOf(node) == FunctionCall.prototype) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     dump(prefix) {
         console.log(prefix + "FunctionCall " + this.name + (this.definition != null ? ", resolved" : ", not resolved"));
@@ -165,13 +195,13 @@ class Parser {
         while (true) { //每次循环解析一个语句
             //尝试一下函数声明
             stmt = this.parseFunctionDecl();
-            if (stmt != null) {
+            if (Statement.isStatementNode(stmt)) {
                 stmts.push(stmt);
                 continue;
             }
             //如果前一个尝试不成功，那么再尝试一下函数调用
             stmt = this.parseFunctionCall();
-            if (stmt != null) {
+            if (Statement.isStatementNode(stmt)) {
                 stmts.push(stmt);
                 continue;
             }
@@ -199,7 +229,7 @@ class Parser {
                     let t2 = this.tokenizer.next();
                     if (t2.text == ")") {
                         let functionBody = this.parseFunctionBody();
-                        if (functionBody != null) {
+                        if (FunctionBody.isFunctionBodyNode(functionBody)) {
                             //如果解析成功，从这里返回
                             return new FunctionDecl(t.text, functionBody);
                         }
@@ -230,7 +260,7 @@ class Parser {
         let t = this.tokenizer.next();
         if (t.text == "{") {
             let functionCall = this.parseFunctionCall();
-            while (functionCall != null) { //解析函数体
+            while (FunctionCall.isFunctionCallNode(functionCall)) { //解析函数体
                 stmts.push(functionCall);
                 functionCall = this.parseFunctionCall();
             }
@@ -434,11 +464,12 @@ function compileAndRun() {
     }
     //语法分析
     let prog = new Parser(tokenizer).parseProg();
+    console.log('prog',prog);
     console.log("\n语法分析后的AST:");
     prog.dump("");
     //语义分析
     new RefResolver().visitProg(prog);
-    console.log("\n语法分析后的AST，注意自定义函数的调用已被消解:");
+    console.log("\n语义分析后的AST，注意自定义函数的调用已被消解:");
     prog.dump("");
     //运行程序
     console.log("\n运行当前的程序:");
