@@ -657,18 +657,26 @@ function compileAndRun(program) {
     let retVal = new Intepretor().visitProg(prog);
     console.log("程序返回值：" + retVal);
 }
-//处理命令行参数，从文件里读取源代码
-const process = __importStar(require("process"));
-// 要求命令行的第三个参数，一定是一个文件名。
-if (process.argv.length < 3) {
-    console.log('Usage: node ' + process.argv[1] + ' FILENAME');
-    process.exit(1);
-}
-// 读取源代码
-let fs = require('fs');
-let filename = process.argv[2];
-fs.readFile(filename, 'utf8', function (err, data) {
-    if (err)
-        throw err;
-    compileAndRun(data);
-});
+// //处理命令行参数，从文件里读取源代码
+// const process = __importStar(require("process"));
+// // 要求命令行的第三个参数，一定是一个文件名。
+// if (process.argv.length < 3) {
+//     console.log('Usage: node ' + process.argv[1] + ' FILENAME');
+//     process.exit(1);
+// }
+// // 读取源代码
+// let fs = require('fs');
+// let filename = process.argv[2];
+// fs.readFile(filename, 'utf8', function (err, data) {
+//     if (err)
+//         throw err;
+//     compileAndRun(data);
+// });
+compileAndRun(`
+    //一个函数的声明，这个函数很简单，只打印"Hello World!"
+    function sayHello(){
+        println("Hello World!");
+    }
+    //调用刚才声明的函数
+    sayHello();
+`);

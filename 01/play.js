@@ -143,6 +143,7 @@ class FunctionBody extends AstNode {
             return false;
         }
         if (Object.getPrototypeOf(node) == FunctionBody.prototype) {
+            // if(node instanceof FunctionBody) {
             return true;
         }
         else {
